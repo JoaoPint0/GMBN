@@ -1,0 +1,66 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
+apply plugin: 'androidx.navigation.safeargs.kotlin'
+
+android {
+    compileSdkVersion build_versions.target_sdk
+    buildToolsVersion build_versions.build_tools
+    defaultConfig {
+        applicationId "com.endeavour.gmbn"
+        minSdkVersion build_versions.min_sdk
+        targetSdkVersion build_versions.target_sdk
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    dataBinding {
+        enabled = true
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation deps.kotlin.stdlib
+    implementation deps.kotlin.coroutines
+
+    implementation deps.constraint_layout
+
+    implementation deps.support.app_compat
+    implementation deps.support.core_ktx
+    implementation deps.support.design
+    implementation deps.support.recyclerview
+    implementation deps.lifecycle.extensions
+    implementation deps.lifecycle.viewmodel_ktx
+    implementation deps.lifecycle.livedata_ktx
+
+    implementation deps.navigation.fragment_ktx
+    implementation deps.navigation.runtime_ktx
+    implementation deps.navigation.ui_ktx
+
+    implementation deps.room.runtime
+    implementation deps.room.kotlin
+    kapt deps.room.compiler
+
+    implementation deps.retrofit.runtime
+    implementation deps.retrofit.gson
+
+    implementation deps.glide.runtime
+
+    implementation deps.joda
+
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
+}
