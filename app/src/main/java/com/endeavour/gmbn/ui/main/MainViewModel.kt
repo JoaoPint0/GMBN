@@ -7,11 +7,13 @@ import com.endeavour.gmbn.vm.Resource
 import com.endeavour.gmbn.vm.Status
 import com.endeavour.gmbn.vm.Video
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 class MainViewModel internal constructor(private val repository: GMBNRepository) : ViewModel() {
 
-    private val videoIds = MutableLiveData<Resource<List<String>>>().apply { Resource.loading(emptyList<Video>()) }
+    private val videoIds =
+        MutableLiveData<Resource<List<String>>>().apply { Resource.loading(emptyList<Video>()) }
 
     init {
         fetchIds()
@@ -22,13 +24,18 @@ class MainViewModel internal constructor(private val repository: GMBNRepository)
             when (ids.status) {
                 Status.SUCCESS -> {
                     if (ids.data.isNullOrEmpty()) {
-                        emit(Resource.loading(emptyList<Video>()))
+                        emit(Resource.success(repository.loadCachedVideos()))
                     } else {
                         emitSource(repository.searchVideos(ids.data))
                     }
                 }
                 Status.CONNECTION -> emit(Resource.connection(repository.loadCachedVideos()))
-                Status.ERROR -> emit(Resource.error("Error", repository.loadCachedVideos()))
+                Status.ERROR -> emit(
+                    Resource.error(
+                        ids.message ?: "",
+                        repository.loadCachedVideos()
+                    )
+                )
                 Status.LOADING -> emit(Resource.loading(emptyList<Video>()))
             }
         }
@@ -42,8 +49,16 @@ class MainViewModel internal constructor(private val repository: GMBNRepository)
                 when (videos.status) {
                     Status.SUCCESS -> MainViewStatus(true)
                     Status.LOADING -> MainViewStatus(loading = true)
-                    Status.CONNECTION -> MainViewStatus(!result, error = result, message = "Verify you Internet Connection")
-                    Status.ERROR -> MainViewStatus(!result, error = result, message = "Unexpected Error, please Retry")
+                    Status.CONNECTION -> MainViewStatus(
+                        !result,
+                        error = result,
+                        message = "Verify you Internet Connection"
+                    )
+                    Status.ERROR -> MainViewStatus(
+                        !result,
+                        error = result,
+                        message = "Unexpected Error, please Retry"
+                    )
                 }
             )
         }
@@ -59,4 +74,9 @@ class MainViewModel internal constructor(private val repository: GMBNRepository)
         val error: Boolean = false,
         val message: String = ""
     )
+
+    override fun onCleared() {
+        GlobalScope.launch(Dispatchers.IO) { repository.clearTable() }
+        super.onCleared()
+    }
 }

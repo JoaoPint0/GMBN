@@ -14,53 +14,64 @@ class GMBNRepository private constructor(
     private val videoDao: VideoDao
 ) {
 
-    suspend fun getVideoIds() : Resource<List<String>>{
+    private var nextPageToken = ""
+
+    suspend fun getVideoIds(): Resource<List<String>> {
         return try {
-            val videos = youtubeService.videoIds(KEY, CHANNEL_ID, SNIPPET, ORDER, MAX_RESULTS)
-            if(videos.isSuccessful){
-                Resource.success(videos.body()?.items?.map { it.toId()} ?: emptyList())
+            val videos = if (nextPageToken.isBlank()){
+                youtubeService.videoIds(KEY, CHANNEL_ID, SNIPPET, ORDER, MAX_RESULTS)
             }else {
-                Resource.error(videos.message(),emptyList())
+                youtubeService.nextVideoIds(KEY, CHANNEL_ID, nextPageToken, SNIPPET, ORDER, MAX_RESULTS)
             }
-        }catch (ex: Exception){
+            nextPageToken = videos.body()?.nextPageToken ?: ""
+            if (videos.isSuccessful) {
+                Resource.success(videos.body()?.items?.map { it.toId() } ?: emptyList())
+            } else {
+                Resource.error(videos.code().toString(), emptyList())
+            }
+        } catch (ex: Exception) {
             Resource.connection(emptyList())
         }
 
     }
 
-    fun searchVideos(ids: List<String>) : LiveData<Resource<List<Video>>> {
+    fun searchVideos(ids: List<String>): LiveData<Resource<List<Video>>> {
         return object : NetworkBoundResource<List<Video>, VideoDetailedResponse>() {
-            override suspend fun saveCallResult(item: VideoDetailedResponse) = videoDao.insertAll(item.items.map { it.toEntity() })
+            override suspend fun saveCallResult(item: VideoDetailedResponse) =
+                videoDao.insertAll(item.items.map { it.toEntity() })
 
             override fun loadFromDb() = videoDao.getVideos()
 
-            override suspend fun createCall() = youtubeService.detailedVideos(KEY, ids.joinToString(), FULL_DETAILS, ORDER)
+            override suspend fun createCall() =
+                youtubeService.detailedVideos(KEY, ids.joinToString(), FULL_DETAILS, ORDER)
 
         }.asLiveData()
     }
 
     fun loadVideoById(videoId: String) = videoDao.loadVideoById(videoId)
 
-     fun loadCachedVideos() = videoDao.loadCachedVideos()
+    fun loadCachedVideos() = videoDao.loadCachedVideos()
 
     suspend fun loadVideoComments(videoId: String): Resource<CommentResponse> {
 
         return try {
             val comments = youtubeService.videoComments(KEY, videoId, SNIPPET)
-            if(comments.isSuccessful){
+            if (comments.isSuccessful) {
                 Resource.success(comments.body())
-            }else {
-                Resource.error(comments.message(),CommentResponse(emptyList()))
+            } else {
+                Resource.error(comments.message(), CommentResponse(emptyList()))
             }
-        }catch (ex: Exception){
+        } catch (ex: Exception) {
             Resource.connection(CommentResponse(emptyList()))
         }
     }
 
+    fun clearTable() {
+        videoDao.nukeTable()
+    }
+
     companion object {
-        //TODO:: Add your own API KEY
-        // https://developers.google.com/youtube/v3/getting-started
-        val KEY = ""
+        val KEY = "AIzaSyAr-AUxFqEp82k4pYRSsvDfs_GPmmLeeGg"
         val CHANNEL_ID = "UC_A--fhX5gea0i4UtpD99Gg"
         val SNIPPET = "snippet"
         val FULL_DETAILS = "snippet,contentDetails,statistics"

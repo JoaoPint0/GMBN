@@ -8,9 +8,11 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.RecyclerView
 import com.endeavour.gmbn.R
 import com.endeavour.gmbn.databinding.MainFragmentBinding
 import com.endeavour.gmbn.di.InjectionUtils
+import kotlinx.android.synthetic.main.details_fragment.*
 import kotlinx.android.synthetic.main.main_fragment.*
 
 class MainFragment : Fragment() {
@@ -36,6 +38,15 @@ class MainFragment : Fragment() {
 
         val adapter = VideoListAdapter()
         videos_list.adapter = adapter
+        videos_list.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+
+                if (!recyclerView.canScrollVertically(1)) {
+                    viewModel.fetchIds()
+                }
+            }
+        })
 
         viewModel.videos.observe(viewLifecycleOwner, Observer {
             val result = it.data

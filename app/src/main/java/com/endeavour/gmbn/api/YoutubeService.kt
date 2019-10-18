@@ -18,6 +18,16 @@ interface YoutubeService {
         @Query("maxResults") maxResults: Int
     ): Response<VideoResponse>
 
+    @GET("youtube/v3/search")
+    suspend fun nextVideoIds(
+        @Query("key") key: String,
+        @Query("channelId") channelId: String,
+        @Query("pageToken") token: String,
+        @Query("part") part: String,
+        @Query("order") order: String,
+        @Query("maxResults") maxResults: Int
+    ): Response<VideoResponse>
+
     @GET("youtube/v3/videos")
     suspend fun detailedVideos(
         @Query("key") key: String,

@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">GMBN</string>
+    <string name="more_button">More</string>
+    <string name="less_button">Less</string>
 </resources>

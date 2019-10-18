@@ -22,7 +22,8 @@ data class VideoDetailed(
     val id: String,
     val snippet: VideoSnippet,
     val contentDetails: ContentDetails,
-    val statistics: Statistics) {
+    val statistics: Statistics
+) {
 
     fun toEntity() = Video(
         id,
@@ -30,24 +31,24 @@ data class VideoDetailed(
         snippet.title,
         snippet.description,
         snippet.publishedAt,
-        contentDetails.duration.toDuration())
+        contentDetails.duration.toDuration()
+    )
 }
 
-data class ContentDetails(val duration : String)
+data class ContentDetails(val duration: String)
 
 data class Statistics(
     val viewCount: String,
     val likeCount: String,
     val dislikeCount: String
 )
-data class VideoApi(val id: VideoId){
+
+data class VideoApi(val id: VideoId) {
     fun toId() = this.id.videoId
 }
-data class VideoId(
-    val kind: String,
-    val videoId: String
-)
 
-data class VideoResponse(val items: List<VideoApi>)
+data class VideoId(val kind: String, val videoId: String)
+
+data class VideoResponse(val nextPageToken: String, val items: List<VideoApi>)
 
 data class VideoDetailedResponse(val items: List<VideoDetailed>)

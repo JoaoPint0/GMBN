@@ -22,4 +22,7 @@ interface VideoDao {
     @Query("SELECT * FROM video ORDER BY publishedAt DESC")
     fun loadCachedVideos(): List<Video>
 
+    @Query("DELETE FROM video")
+    fun nukeTable()
+
 }
