@@ -29,10 +29,9 @@
             <ImageView
                 android:id="@+id/video_thumbnail"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
+                app:layout_constraintDimensionRatio="H,16:9"
                 android:contentDescription="@null"
-                android:scaleType="fitStart"
-                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:thumbnail="@{video.thumbnail}"
                 tools:srcCompat="@tools:sample/backgrounds/scenic" />
@@ -54,18 +53,19 @@
 
             <TextView
                 android:id="@+id/video_title"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_margin="16dp"
                 android:text="@{video.title}"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
                 app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/video_thumbnail"
                 tools:text="Pixel 4 unvail" />
 
             <TextView
                 android:id="@+id/video_publishedAt"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="16dp"
                 android:text="@{video.publishedAt.toLocaleString()}"
@@ -76,13 +76,14 @@
 
             <TextView
                 android:id="@+id/video_description"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_margin="16dp"
                 android:maxLines="@{viewModel.showDescription ? 100 : 5}"
                 android:text="@{video.description}"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
                 app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/video_publishedAt"
                 tools:text="Pixel 4 unvail" />
 

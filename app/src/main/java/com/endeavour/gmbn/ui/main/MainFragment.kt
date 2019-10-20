@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.endeavour.gmbn.R
 import com.endeavour.gmbn.databinding.MainFragmentBinding
 import com.endeavour.gmbn.di.InjectionUtils
-import kotlinx.android.synthetic.main.details_fragment.*
 import kotlinx.android.synthetic.main.main_fragment.*
 
 class MainFragment : Fragment() {
@@ -21,11 +20,14 @@ class MainFragment : Fragment() {
         InjectionUtils.provideMainViewModelFactory(requireContext())
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
 
         val binding = DataBindingUtil.inflate<MainFragmentBinding>(
-            inflater, R.layout.main_fragment, container, false).apply {
+            inflater, R.layout.main_fragment, container, false
+        ).apply {
             status = viewModel.viewStatus
             lifecycleOwner = this@MainFragment
         }
@@ -37,16 +39,24 @@ class MainFragment : Fragment() {
         super.onActivityCreated(savedInstanceState)
 
         val adapter = VideoListAdapter()
-        videos_list.adapter = adapter
-        videos_list.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                super.onScrollStateChanged(recyclerView, newState)
-
-                if (!recyclerView.canScrollVertically(1)) {
-                    viewModel.fetchIds()
+        videos_list.apply {
+            this.adapter = adapter
+            postponeEnterTransition()
+            viewTreeObserver
+                .addOnPreDrawListener {
+                    startPostponedEnterTransition()
+                    true
                 }
-            }
-        })
+            addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                    super.onScrollStateChanged(recyclerView, newState)
+
+                    if (!recyclerView.canScrollVertically(1)) {
+                        viewModel.fetchIds()
+                    }
+                }
+            })
+        }
 
         viewModel.videos.observe(viewLifecycleOwner, Observer {
             val result = it.data

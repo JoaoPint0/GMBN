@@ -3,8 +3,12 @@ package com.endeavour.gmbn.ui.main
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.TextView
+import androidx.core.view.ViewCompat
 import androidx.databinding.DataBindingUtil
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -27,26 +31,33 @@ class VideoListAdapter : ListAdapter<Video, VideoListAdapter.ViewHolder>(VideoDi
         getItem(position).let { video ->
             with(holder) {
                 itemView.tag = video
-                bind(createOnClickListener(video.id), video)
+                bind(createOnClickListener(binding,video.id), video)
             }
         }
     }
 
-    private fun createOnClickListener(videoId: String): View.OnClickListener {
+    private fun createOnClickListener(binding : VideoItemBinding, videoId: String): View.OnClickListener {
         return View.OnClickListener {
             val directions = MainFragmentDirections.viewVideoDetails(videoId)
-            it.findNavController().navigate(directions)
+            val extras = FragmentNavigatorExtras(
+                binding.videoTitle to "title_$videoId",
+                binding.videoDuration to "duration_$videoId",
+                binding.videoThumbnail to "thumbnail_$videoId")
+            it.findNavController().navigate(directions, extras)
         }
     }
 
-    class ViewHolder(private val binding: VideoItemBinding) : RecyclerView.ViewHolder(binding.root) {
+    class ViewHolder(val binding: VideoItemBinding) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(listener: View.OnClickListener, value: Video) {
+            ViewCompat.setTransitionName(binding.videoTitle, "title_${value.id}")
+            ViewCompat.setTransitionName(binding.videoDuration, "duration_${value.id}")
+            ViewCompat.setTransitionName(binding.videoThumbnail, "thumbnail_${value.id}")
             with(binding) {
-                clickListener = listener
                 video = value
                 executePendingBindings()
             }
+            binding.root.setOnClickListener(listener)
         }
     }
 }
