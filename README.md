@@ -1,5 +1,5 @@
-# GMBN
-Small example uploading videos from GMBN channel.
+# Jetpack Samples
+Small example uploading videos from GMBN channel implementing Jetpack libraries.
 
 # TODO
 
