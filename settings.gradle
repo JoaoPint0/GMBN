@@ -1,2 +1,8 @@
 include ':app'
 rootProject.name='GMBN'
+include ':domain'
+include ':feed'
+include ':details'
+include ':core-domain'
+include ':core-ui'
+include ':navigation'
